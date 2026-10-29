@@ -1,0 +1,29 @@
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+prompt = "Explain the benefits of artificial intelligence in education."
+
+def generate_response(temperature, max_tokens):
+    inputs = tokenizer(prompt, return_tensors="pt")
+
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=max_tokens,
+        do_sample=True,
+        temperature=temperature
+    )
+
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+print("Low Temperature:")
+print(generate_response(0.2, 40))
+
+print("\nMedium Temperature:")
+print(generate_response(0.7, 80))
+
+print("\nHigh Temperature:")
+print(generate_response(1.0, 120))
