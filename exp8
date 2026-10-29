@@ -1,0 +1,85 @@
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+# Load the language model
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+def generate_text(prompt, max_tokens=100):
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True
+    )
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=max_tokens
+    )
+    return tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
+
+# Legal document
+legal_text = """
+This agreement is between ABC Technologies and XYZ Solutions.
+ABC Technologies will provide software development services.
+XYZ Solutions must make payment within 30 days of receiving
+an invoice. The agreement will remain valid for one year.
+Either party may terminate the agreement by providing
+30 days written notice. Confidential information must not
+be disclosed to third parties without prior written consent.
+"""
+
+# Prompt 1 - Identify parties
+prompt1 = f"""
+Identify the parties in this legal document:
+{legal_text}
+"""
+parties = generate_text(prompt1, max_tokens=80)
+
+# Prompt 2 - Identify obligations
+prompt2 = f"""
+Identify the major obligations of each party.
+{legal_text}
+"""
+obligations = generate_text(prompt2, max_tokens=100)
+
+# Prompt 3 - Extract important clauses
+prompt3 = f"""
+Identify the important clauses related to:
+Payment, Duration, Termination and Confidentiality.
+{legal_text}
+"""
+clauses = generate_text(prompt3, max_tokens=120)
+
+# Prompt 4 - Generate final summary
+prompt4 = f"""
+Prepare a concise summary of the legal document using:
+
+Parties:
+{parties}
+
+Obligations:
+{obligations}
+
+Important Clauses:
+{clauses}
+
+Present the final answer as bullet points.
+"""
+summary = generate_text(prompt4, max_tokens=180)
+
+# Display results
+print("PARTIES:")
+print(parties)
+
+print("\nOBLIGATIONS:")
+print(obligations)
+
+print("\nIMPORTANT CLAUSES:")
+print(clauses)
+
+print("\nFINAL SUMMARY:")
+print(summary)
