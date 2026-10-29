@@ -1,0 +1,91 @@
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+# Load the pre-trained model
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+
+def generator(prompt, max_new_tokens=100):
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True
+    )
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=max_new_tokens
+    )
+    return [{
+        "generated_text": tokenizer.decode(
+            outputs[0],
+            skip_special_tokens=True
+        )
+    }]
+
+
+# Student information
+text = """
+Student Name: Arun Kumar
+Department: Artificial Intelligence and Data Science
+CGPA: 8.72
+Skills: Python, Machine Learning, Power BI
+Project: Student Performance Prediction
+"""
+
+# Prompt 1 - Extraction
+prompt1 = f"""
+Extract the following information from the text:
+Name, Department, CGPA, Skills and Project.
+
+{text}
+"""
+
+step1 = generator(
+    prompt1,
+    max_new_tokens=100
+)[0]["generated_text"]
+
+
+# Prompt 2 - Organization
+prompt2 = f"""
+Organize the following information into these fields:
+Name
+Department
+CGPA
+Skills
+Project
+
+Information:
+{step1}
+"""
+
+step2 = generator(
+    prompt2,
+    max_new_tokens=100
+)[0]["generated_text"]
+
+
+# Prompt 3 - Formatting
+prompt3 = f"""
+Convert the following information into a clear table:
+
+{step2}
+"""
+
+step3 = generator(
+    prompt3,
+    max_new_tokens=150
+)[0]["generated_text"]
+
+
+# Display the final output
+print("STEP 1 - EXTRACTED INFORMATION:")
+print(step1)
+
+print("\nSTEP 2 - ORGANIZED INFORMATION:")
+print(step2)
+
+print("\nSTEP 3 - FINAL TABLE:")
+print(step3)
