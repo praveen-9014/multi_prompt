@@ -1,0 +1,46 @@
+!pip install transformers torch pillow requests -q
+
+from transformers import BlipProcessor, BlipForConditionalGeneration
+from PIL import Image
+import requests
+
+# Load processor and model
+processor = BlipProcessor.from_pretrained(
+    "Salesforce/blip-image-captioning-base"
+)
+
+model = BlipForConditionalGeneration.from_pretrained(
+    "Salesforce/blip-image-captioning-base"
+)
+
+# Load image
+image_url = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+
+image = Image.open(
+    requests.get(image_url, stream=True).raw
+).convert("RGB")
+
+# Multimodal prompt
+prompt = "A photograph of"
+
+inputs = processor(
+    images=image,
+    text=prompt,
+    return_tensors="pt"
+)
+
+# Generate caption
+output = model.generate(
+    **inputs,
+    max_new_tokens=30
+)
+
+caption = processor.decode(
+    output[0],
+    skip_special_tokens=True
+)
+
+print("GENERATED IMAGE CAPTION:")
+print(caption)
+
+display(image)
