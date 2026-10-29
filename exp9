@@ -1,0 +1,61 @@
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+# Load model and tokenizer
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+def generate_text(prompt):
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True
+    )
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=100
+    )
+    return tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
+
+# Conversation history
+conversation = []
+
+def chatbot(user_message):
+    conversation.append("Customer: " + user_message)
+
+    history = "\n".join(conversation)
+
+    prompt = f"""
+You are a helpful and polite customer support assistant.
+Use the previous conversation to understand the context.
+Do not invent order information.
+If required information is missing, ask the customer for it.
+
+Conversation:
+{history}
+Assistant:
+"""
+
+    response = generate_text(prompt)
+    conversation.append("Assistant: " + response)
+
+    return response
+
+# Turn 1
+user1 = "I ordered a laptop yesterday."
+print("Customer:", user1)
+print("Assistant:", chatbot(user1))
+
+# Turn 2
+user2 = "What is the delivery status?"
+print("\nCustomer:", user2)
+print("Assistant:", chatbot(user2))
+
+# Turn 3
+user3 = "My order number is 45821."
+print("\nCustomer:", user3)
+print("Assistant:", chatbot(user3))
