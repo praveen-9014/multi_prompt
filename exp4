@@ -1,0 +1,72 @@
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+# Load the pre-trained model
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+
+def generate_text(prompt, max_tokens=100):
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True
+    )
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=max_tokens
+    )
+    return tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
+
+
+query = "Tell me about Python."
+
+# Step 1 - Identify ambiguity
+prompt1 = f"""
+Analyze the following query and identify whether it is ambiguous.
+If it is ambiguous, mention its possible meanings.
+
+Query:
+{query}
+"""
+
+analysis = generate_text(prompt1, max_tokens=100)
+
+# Step 2 - Refine the query
+prompt2 = f"""
+The original query is:
+
+{query}
+
+The ambiguity analysis is:
+
+{analysis}
+
+Rewrite the query so that it clearly refers to Python
+as a programming language.
+"""
+
+refined_query = generate_text(prompt2, max_tokens=80)
+
+# Step 3 - Generate final response
+prompt3 = f"""
+Answer the following query in a simple and informative manner:
+
+{refined_query}
+"""
+
+answer = generate_text(prompt3, max_tokens=120)
+
+# Display all stages
+print("AMBIGUITY ANALYSIS:")
+print(analysis)
+
+print("\nREFINED QUERY:")
+print(refined_query)
+
+print("\nFINAL ANSWER:")
+print(answer)
