@@ -1,0 +1,53 @@
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+def generate(prompt):
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+    outputs = model.generate(**inputs, max_new_tokens=80)
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+text = """
+Climate change causes rising temperatures, melting ice caps,
+changing weather patterns and rising sea levels.
+Renewable energy can help reduce greenhouse gas emissions.
+"""
+
+# Zero-shot prompting
+zero_prompt = f"Summarize this text in two sentences: {text}"
+
+# One-shot prompting
+one_prompt = f"""
+Example:
+Text: Solar energy is a renewable source of energy.
+Summary: Solar energy provides clean power.
+
+Now summarize this text:
+{text}
+"""
+
+# Few-shot prompting
+few_prompt = f"""
+Example 1:
+Text: Solar energy is renewable.
+Summary: Solar energy provides clean power.
+
+Example 2:
+Text: Online education allows remote learning.
+Summary: Online education provides flexible learning.
+
+Now summarize this text:
+{text}
+"""
+
+print("ZERO-SHOT OUTPUT:")
+print(generate(zero_prompt))
+
+print("\nONE-SHOT OUTPUT:")
+print(generate(one_prompt))
+
+print("\nFEW-SHOT OUTPUT:")
+print(generate(few_prompt))
