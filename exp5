@@ -1,0 +1,76 @@
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+# Load the pre-trained model
+model_name = "google/flan-t5-base"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+
+def generate_text(prompt, max_tokens=100):
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True
+    )
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=max_tokens,
+        repetition_penalty=2.5,
+        no_repeat_ngram_size=3
+    )
+    return tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
+
+
+# Product information
+product = """
+Product: Wireless Bluetooth Headphones
+Battery Life: 30 hours
+Connectivity: Bluetooth 5.3
+Features: Noise cancellation, built-in microphone,
+lightweight design
+Target Users: Students and professionals
+"""
+
+# Basic prompt
+basic_prompt = f"""
+Write a product description for:
+
+{product}
+"""
+
+basic_output = generate_text(basic_prompt, max_tokens=120)
+
+# Optimized prompt
+optimized_prompt = f"""
+You are an e-commerce product content writer.
+
+Create an accurate product description using ONLY
+the information given below.
+
+Requirements:
+1. Mention the major features.
+2. Mention battery life and connectivity.
+3. Explain benefits for students and professionals.
+4. Do not invent specifications.
+5. Use professional language.
+6. Write approximately 100 words.
+
+Product information:
+{product}
+"""
+
+optimized_output = generate_text(
+    optimized_prompt,
+    max_tokens=160
+)
+
+# Display the outputs
+print("BASIC PROMPT OUTPUT:")
+print(basic_output)
+
+print("\nOPTIMIZED PROMPT OUTPUT:")
+print(optimized_output)
