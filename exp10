@@ -1,0 +1,76 @@
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+# Load model and tokenizer
+model_name = "google/flan-t5-base"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+def generate_text(prompt, max_tokens=100):
+    inputs = tokenizer(
+        prompt, return_tensors="pt", truncation=True
+    )
+    outputs = model.generate(
+        **inputs, max_new_tokens=max_tokens
+    )
+    return tokenizer.decode(
+        outputs[0], skip_special_tokens=True
+    )
+
+# User preferences
+user_profile = """
+The user likes science fiction and thriller movies.
+The user prefers intelligent plots and strong characters.
+The user does not prefer horror movies or excessive romance.
+"""
+
+# Step 1: Extract preferences
+prompt1 = f"""
+Extract the movie preferences from the following profile.
+
+{user_profile}
+
+Return:
+Preferred Genres:
+Preferred Features:
+Disliked Genres:
+"""
+
+preferences = generate_text(prompt1, max_tokens=100)
+
+# Step 2: Identify suitable categories
+prompt2 = f"""
+Based on the following preferences,
+identify suitable movie categories.
+
+{preferences}
+"""
+
+categories = generate_text(prompt2, max_tokens=80)
+
+# Step 3: Generate movie recommendations
+prompt3 = f"""
+Suggest five movies for the following user.
+
+Preferences:
+{preferences}
+
+Suitable Categories:
+{categories}
+
+For each movie provide:
+1. Movie name
+2. Genre
+3. Reason for recommendation
+"""
+
+recommendations = generate_text(prompt3, max_tokens=200)
+
+# Display results
+print("STEP 1 - USER PREFERENCES:")
+print(preferences)
+
+print("\nSTEP 2 - SUITABLE CATEGORIES:")
+print(categories)
+
+print("\nSTEP 3 - PERSONALIZED RECOMMENDATIONS:")
+print(recommendations)
