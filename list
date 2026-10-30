@@ -1,2 +1,10 @@
 exp1 — Zero-shot, One-shot and Few-shot Prompting for Text Summarization
 exp2 - Extract Specific Information from Unstructured Text
+Experiment 3: Implement a Chain of Prompts to Solve a Multi-Step Task
+Experiment 4: Design Iterative Feedback Loops to Refine Responses for Ambiguous Queries
+Experiment 5: Optimize Prompts for Accuracy in Generating Detailed Product Descriptions
+Experiment 6: Evaluate and Compare Prompt Performance Across Different LLM Settings
+Experiment 7: Create Multimodal Prompts to Generate Image Captions
+Experiment 8: Design Prompts to Analyze a Legal Document and Summarize Its Key Points
+Experiment 9: Develop Prompts for a Customer Support Chatbot Capable of Multi-Turn Dialogue
+Experiment 10: Personalized Movie Recommendations
